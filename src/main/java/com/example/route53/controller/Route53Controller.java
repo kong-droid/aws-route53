@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.concurrent.Callable;
 
 @Slf4j
 @Validated
@@ -24,15 +25,29 @@ public class Route53Controller {
 
     @PostMapping("/a")
     @Operation(summary = "ip로 서브 도메인 생성")
-    public void create(@Valid @RequestBody SubDomainDto.ARecordDto recordDto){
-        subDomainService.createARecord(recordDto.getHostedZoneId(), recordDto.getSubDomain(),
-                recordDto.getIp());
+    public Callable<Boolean> create(@Valid @RequestBody SubDomainDto.ARecordDto recordDto) {
+        return () -> subDomainService.createARecord(recordDto.getHostedZoneId(), recordDto.getSubDomain(),
+                    recordDto.getIp());
     }
 
     @PostMapping("/cname")
     @Operation(summary = "cname으로 서브도메인 등록")
-    public void create(@Valid @RequestBody SubDomainDto.CnameRecordDto cnameRecordDto){
-        subDomainService.createCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
+    public Callable<Boolean> create(@Valid @RequestBody SubDomainDto.CnameRecordDto cnameRecordDto) {
+        return () -> subDomainService.createCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
+                cnameRecordDto.getCname());
+    }
+
+    @DeleteMapping("/a")
+    @Operation(summary = "ip로 서브 도메인 삭제")
+    public Callable<Boolean> delete(@Valid @RequestBody SubDomainDto.ARecordDto recordDto) {
+        return () -> subDomainService.deleteARecord(recordDto.getHostedZoneId(), recordDto.getSubDomain(),
+                recordDto.getIp());
+    }
+
+    @DeleteMapping("/cname")
+    @Operation(summary = "cname으로 서브도메인 삭제")
+    public Callable<Boolean> delete(@Valid @RequestBody SubDomainDto.CnameRecordDto cnameRecordDto){
+        return () -> subDomainService.deleteCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
                 cnameRecordDto.getCname());
     }
 }

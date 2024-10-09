@@ -15,61 +15,75 @@ public class SubDomainBuilder {
 
     private final Route53Config route53Config;
 
-    public void createARecord(String hostedZoneId, String subDomain, String ip) {
-        val recordSet = ResourceRecordSet.builder()
+    public boolean createARecord(String hostedZoneId, String subDomain, String ip) {
+        val recordSet = aRecordSet(subDomain, ip);
+        val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
+    }
+
+    public boolean createCnameRecord(String hostedZoneId, String subDomain, String cname) {
+        val recordSet = cnameRecordSet(subDomain, cname);
+        val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
+    }
+
+    public boolean deleteARecord(String hostedZoneId, String subDomain, String ip) {
+        val recordSet = aRecordSet(subDomain, ip);
+        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
+    }
+
+    public boolean deleteCnameRecord(String hostedZoneId, String subDomain, String cname) {
+        val recordSet = cnameRecordSet(subDomain, cname);
+        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
+    }
+
+    private ResourceRecordSet aRecordSet(String subDomain, String ip) {
+        val ipBuilder = ResourceRecord.builder().value(ip).build();
+        return ResourceRecordSet.builder()
                 .name(subDomain)
                 .type(RRType.A)
                 .ttl(600L)
-                .resourceRecords(
-                        ResourceRecord.builder()
-                                .value(ip)
-                                .build()
-                )
+                .resourceRecords(ipBuilder)
                 .build();
-
-        val changeBatch = ChangeBatch.builder()
-                .changes(Change.builder()
-                        .action(ChangeAction.CREATE)
-                        .resourceRecordSet(recordSet)
-                        .build())
-                .build();
-
-
-        val request = ChangeResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
-                .changeBatch(changeBatch)
-                .build();
-
-        route53Config.route53Client().changeResourceRecordSets(request);
     }
 
-
-    public void createCnameRecord(String hostedZoneId, String subDomain, String cname) {
-        val recordSet = ResourceRecordSet.builder()
+    private ResourceRecordSet cnameRecordSet(String subDomain, String cname) {
+        val cnameBuilder = ResourceRecord.builder().value(cname).build();
+        return ResourceRecordSet.builder()
                 .name(subDomain)
                 .type(RRType.CNAME)
                 .ttl(600L)
-                .resourceRecords(
-                        ResourceRecord.builder()
-                                .value(cname)
-                                .build()
-                )
+                .resourceRecords(cnameBuilder)
                 .build();
+    }
 
-        val changeBatch = ChangeBatch.builder()
-                .changes(Change.builder()
-                        .action(ChangeAction.CREATE)
-                        .resourceRecordSet(recordSet)
-                        .build())
+    private ChangeBatch changeBatch(ResourceRecordSet recordSet, ChangeAction changeAction) {
+        val changeBuilder = Change.builder()
+                .action(changeAction)
+                .resourceRecordSet(recordSet)
                 .build();
+        return ChangeBatch.builder()
+                .changes(changeBuilder)
+                .build();
+    }
 
-
-        val request = ChangeResourceRecordSetsRequest.builder()
+    private ChangeResourceRecordSetsRequest setRequest(String hostedZoneId, ChangeBatch changeBatch) {
+        return ChangeResourceRecordSetsRequest.builder()
                 .hostedZoneId(hostedZoneId)
                 .changeBatch(changeBatch)
                 .build();
-
-        route53Config.route53Client().changeResourceRecordSets(request);
     }
 
+    private boolean actionRoute53(ChangeResourceRecordSetsRequest request) {
+        return route53Config.route53Client()
+                .changeResourceRecordSets(request)
+                .sdkHttpResponse()
+                .isSuccessful();
+    }
 }
