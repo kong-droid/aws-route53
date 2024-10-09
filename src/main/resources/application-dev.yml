@@ -1,3 +1,15 @@
 logging:
   file:
     path: logging path.
+
+#aws config
+cloud:
+  aws:
+    region:
+      static: your region.
+      auto: false
+    stack:
+      auto: false
+    credentials:
+      access-key: your iam access key.
+      secret-key: your iam secret key.

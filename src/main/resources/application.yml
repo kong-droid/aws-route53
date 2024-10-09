@@ -49,4 +49,3 @@ springdoc:
   default-consumes-media-type: application/json
   paths-to-match:
     - /aws/**
-

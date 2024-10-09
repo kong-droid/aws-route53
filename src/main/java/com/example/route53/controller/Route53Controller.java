@@ -22,12 +22,18 @@ public class Route53Controller {
 
     private final SubDomainService subDomainService;
 
-    @PostMapping
-    @Operation(summary = "서브 도메인 등록")
-    public void create(@Valid @RequestBody SubDomainDto subDomainDto){
-        subDomainService.create(subDomainDto.getHostedZoneId(), subDomainDto.getSubDomain(),
-                subDomainDto.getCname(), subDomainDto.getIp());
+    @PostMapping("/a")
+    @Operation(summary = "ip로 서브 도메인 생성")
+    public void create(@Valid @RequestBody SubDomainDto.ARecordDto recordDto){
+        subDomainService.createARecord(recordDto.getHostedZoneId(), recordDto.getSubDomain(),
+                recordDto.getIp());
     }
 
+    @PostMapping("/cname")
+    @Operation(summary = "cname으로 서브도메인 등록")
+    public void create(@Valid @RequestBody SubDomainDto.CnameRecordDto cnameRecordDto){
+        subDomainService.createCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
+                cnameRecordDto.getCname());
+    }
 }
 

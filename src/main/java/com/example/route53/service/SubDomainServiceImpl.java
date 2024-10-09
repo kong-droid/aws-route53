@@ -10,20 +10,16 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SubDomainServiceImpl implements SubDomainService {
+
+    private final SubDomainBuilder subDomainBuilder;
+
     @Override
-    public void createARecord(SubDomainBuilder builder, String hostedZoneId, String subDomain, String ip) {
-        builder.createARecord(hostedZoneId, subDomain, ip);
+    public void createARecord(String hostedZoneId, String subDomain, String ip) {
+        subDomainBuilder.createARecord(hostedZoneId, subDomain, ip);
     }
 
     @Override
-    public void createCnameRecord(SubDomainBuilder builder, String hostedZoneId, String cname, String ip) {
-        builder.createCnameRecord(hostedZoneId, cname, ip);
-    }
-
-    @Override
-    public void create(String hostedZoneId, String subDomain, String cname, String ip) {
-        val builder = new SubDomainBuilder();
-        this.createARecord(builder, hostedZoneId, subDomain, ip);
-        this.createCnameRecord(builder, hostedZoneId, cname, ip);
+    public void createCnameRecord(String hostedZoneId, String subDomain, String cname) {
+        subDomainBuilder.createCnameRecord(hostedZoneId, subDomain, cname);
     }
 }

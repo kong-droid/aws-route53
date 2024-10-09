@@ -1,20 +1,20 @@
 package com.example.route53.utils;
 
+import com.example.route53.config.Route53Config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import software.amazon.awssdk.services.route53.Route53Client;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.route53.model.*;
 
+
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class SubDomainBuilder {
 
-    private final Route53Client route53Client;
+    private final Route53Config route53Config;
 
-    public SubDomainBuilder() {
-        this.route53Client = Route53Client.builder().build();
-    }
     public void createARecord(String hostedZoneId, String subDomain, String ip) {
         val recordSet = ResourceRecordSet.builder()
                 .name(subDomain)
@@ -40,7 +40,7 @@ public class SubDomainBuilder {
                 .changeBatch(changeBatch)
                 .build();
 
-        route53Client.changeResourceRecordSets(request);
+        route53Config.route53Client().changeResourceRecordSets(request);
     }
 
 
@@ -69,7 +69,7 @@ public class SubDomainBuilder {
                 .changeBatch(changeBatch)
                 .build();
 
-        route53Client.changeResourceRecordSets(request);
+        route53Config.route53Client().changeResourceRecordSets(request);
     }
 
 }

@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-security:1.6.13")
 
 	// aws sdk
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation("software.amazon.awssdk:route53:2.28.16")
 
 	compileOnly("org.projectlombok:lombok")
