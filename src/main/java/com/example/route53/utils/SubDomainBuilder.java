@@ -15,18 +15,32 @@ public class SubDomainBuilder {
 
     private final Route53Config route53Config;
 
-    public void createARecord(String hostedZoneId, String subDomain, String ip) {
+    public boolean createARecord(String hostedZoneId, String subDomain, String ip) {
         val recordSet = aRecordSet(subDomain, ip);
         val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
         val request = setRequest(hostedZoneId, changeBatch);
-        actionRoute53(request);
+        return actionRoute53(request);
     }
 
-    public void createCnameRecord(String hostedZoneId, String subDomain, String cname) {
+    public boolean createCnameRecord(String hostedZoneId, String subDomain, String cname) {
         val recordSet = cnameRecordSet(subDomain, cname);
         val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
         val request = setRequest(hostedZoneId, changeBatch);
-        actionRoute53(request);
+        return actionRoute53(request);
+    }
+
+    public boolean deleteARecord(String hostedZoneId, String subDomain, String ip) {
+        val recordSet = aRecordSet(subDomain, ip);
+        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
+    }
+
+    public boolean deleteCnameRecord(String hostedZoneId, String subDomain, String cname) {
+        val recordSet = cnameRecordSet(subDomain, cname);
+        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
+        val request = setRequest(hostedZoneId, changeBatch);
+        return actionRoute53(request);
     }
 
     private ResourceRecordSet aRecordSet(String subDomain, String ip) {
@@ -66,7 +80,10 @@ public class SubDomainBuilder {
                 .build();
     }
 
-    private void actionRoute53(ChangeResourceRecordSetsRequest request) {
-        route53Config.route53Client().changeResourceRecordSets(request);
+    private boolean actionRoute53(ChangeResourceRecordSetsRequest request) {
+        return route53Config.route53Client()
+                .changeResourceRecordSets(request)
+                .sdkHttpResponse()
+                .isSuccessful();
     }
 }
