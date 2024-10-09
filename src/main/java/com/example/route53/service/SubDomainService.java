@@ -5,4 +5,6 @@ import com.example.route53.utils.SubDomainBuilder;
 public interface SubDomainService {
     void createARecord(String hostedZoneId, String subDomain, String ip);
     void createCnameRecord(String hostedZoneId, String subDomain, String cname);
+    void deleteARecord(String hostedZoneId, String subDomain, String ip);
+    void deleteCnameRecord(String hostedZoneId, String subDomain, String cname);
 }

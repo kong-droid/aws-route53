@@ -22,4 +22,14 @@ public class SubDomainServiceImpl implements SubDomainService {
     public void createCnameRecord(String hostedZoneId, String subDomain, String cname) {
         subDomainBuilder.createCnameRecord(hostedZoneId, subDomain, cname);
     }
+
+    @Override
+    public void deleteARecord(String hostedZoneId, String subDomain, String ip) {
+
+    }
+
+    @Override
+    public void deleteCnameRecord(String hostedZoneId, String subDomain, String cname) {
+
+    }
 }

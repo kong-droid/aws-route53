@@ -35,5 +35,19 @@ public class Route53Controller {
         subDomainService.createCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
                 cnameRecordDto.getCname());
     }
+
+    @DeleteMapping("/a")
+    @Operation(summary = "ip로 서브 도메인 삭제")
+    public void delete(@Valid @RequestBody SubDomainDto.ARecordDto recordDto){
+        subDomainService.createARecord(recordDto.getHostedZoneId(), recordDto.getSubDomain(),
+                recordDto.getIp());
+    }
+
+    @DeleteMapping("/cname")
+    @Operation(summary = "cname으로 서브도메인 삭제")
+    public void delete(@Valid @RequestBody SubDomainDto.CnameRecordDto cnameRecordDto){
+        subDomainService.createCnameRecord(cnameRecordDto.getHostedZoneId(), cnameRecordDto.getSubDomain(),
+                cnameRecordDto.getCname());
+    }
 }
 
