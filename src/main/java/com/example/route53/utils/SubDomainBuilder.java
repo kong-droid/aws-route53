@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.route53.model.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SubDomainBuilder {
+public class SubDomainBuilder extends SubDomainBuildSupporter {
 
     private final Route53Config route53Config;
 
@@ -27,44 +27,6 @@ public class SubDomainBuilder {
         val changeBatch = changeBatch(recordSet, changeAction);
         val request = setRequest(hostedZoneId, changeBatch);
         return actionRoute53(request);
-    }
-
-
-    private ResourceRecordSet aRecordSet(String subDomain, String ip) {
-        val ipBuilder = ResourceRecord.builder().value(ip).build();
-        return ResourceRecordSet.builder()
-                .name(subDomain)
-                .type(RRType.A)
-                .ttl(600L)
-                .resourceRecords(ipBuilder)
-                .build();
-    }
-
-    private ResourceRecordSet cnameRecordSet(String subDomain, String cname) {
-        val cnameBuilder = ResourceRecord.builder().value(cname).build();
-        return ResourceRecordSet.builder()
-                .name(subDomain)
-                .type(RRType.CNAME)
-                .ttl(600L)
-                .resourceRecords(cnameBuilder)
-                .build();
-    }
-
-    private ChangeBatch changeBatch(ResourceRecordSet recordSet, ChangeAction changeAction) {
-        val changeBuilder = Change.builder()
-                .action(changeAction)
-                .resourceRecordSet(recordSet)
-                .build();
-        return ChangeBatch.builder()
-                .changes(changeBuilder)
-                .build();
-    }
-
-    private ChangeResourceRecordSetsRequest setRequest(String hostedZoneId, ChangeBatch changeBatch) {
-        return ChangeResourceRecordSetsRequest.builder()
-                .hostedZoneId(hostedZoneId)
-                .changeBatch(changeBatch)
-                .build();
     }
 
     private boolean actionRoute53(ChangeResourceRecordSetsRequest request) {
