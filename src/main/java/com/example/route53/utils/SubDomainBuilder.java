@@ -15,33 +15,20 @@ public class SubDomainBuilder {
 
     private final Route53Config route53Config;
 
-    public boolean createARecord(String hostedZoneId, String subDomain, String ip) {
+    public boolean operationARecord(String hostedZoneId, String subDomain, String ip, ChangeAction changeAction) {
         val recordSet = aRecordSet(subDomain, ip);
-        val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
+        val changeBatch = changeBatch(recordSet, changeAction);
         val request = setRequest(hostedZoneId, changeBatch);
         return actionRoute53(request);
     }
 
-    public boolean createCnameRecord(String hostedZoneId, String subDomain, String cname) {
+    public boolean operationCnameRecord(String hostedZoneId, String subDomain, String cname, ChangeAction changeAction) {
         val recordSet = cnameRecordSet(subDomain, cname);
-        val changeBatch = changeBatch(recordSet, ChangeAction.CREATE);
+        val changeBatch = changeBatch(recordSet, changeAction);
         val request = setRequest(hostedZoneId, changeBatch);
         return actionRoute53(request);
     }
 
-    public boolean deleteARecord(String hostedZoneId, String subDomain, String ip) {
-        val recordSet = aRecordSet(subDomain, ip);
-        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
-        val request = setRequest(hostedZoneId, changeBatch);
-        return actionRoute53(request);
-    }
-
-    public boolean deleteCnameRecord(String hostedZoneId, String subDomain, String cname) {
-        val recordSet = cnameRecordSet(subDomain, cname);
-        val changeBatch = changeBatch(recordSet, ChangeAction.DELETE);
-        val request = setRequest(hostedZoneId, changeBatch);
-        return actionRoute53(request);
-    }
 
     private ResourceRecordSet aRecordSet(String subDomain, String ip) {
         val ipBuilder = ResourceRecord.builder().value(ip).build();
@@ -81,9 +68,15 @@ public class SubDomainBuilder {
     }
 
     private boolean actionRoute53(ChangeResourceRecordSetsRequest request) {
-        return route53Config.route53Client()
-                .changeResourceRecordSets(request)
-                .sdkHttpResponse()
-                .isSuccessful();
+        try {
+            return route53Config
+                    .route53Client()
+                    .changeResourceRecordSets(request)
+                    .sdkHttpResponse()
+                    .isSuccessful();
+        } catch (Exception e) {
+            log.info("route53 error. message: {}", e.getMessage());
+        }
+        return false;
     }
 }
